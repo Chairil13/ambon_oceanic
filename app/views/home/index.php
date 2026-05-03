@@ -1,3 +1,9 @@
+<?php
+/**
+ * @var array $categories - List of categories from controller
+ * @var array $destinations - List of destinations from controller
+ */
+?>
 <!DOCTYPE html>
 <html class="light" lang="id">
 <head>
@@ -35,7 +41,10 @@
 <nav class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-3xl shadow-sm">
     <div class="flex justify-between items-center w-full px-6 py-4 max-w-screen-2xl mx-auto">
         <div class="flex items-center gap-2">
-            <img src="<?= BASE_URL ?>public/assets/images/logo.png" alt="Ambon Oceanic Logo" class="h-10 w-auto">
+            <img src="<?= BASE_URL ?>public/assets/images/logo.png" 
+                 alt="Ambon Oceanic Logo" 
+                 class="h-10 w-auto"
+                 onerror="this.onerror=null; this.src='public/assets/images/logo.png';">
         </div>
         
         <!-- Web Navigation -->

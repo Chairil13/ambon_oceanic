@@ -18,6 +18,7 @@ storage/logs/*.log
 # Uploads
 public/assets/images/*
 !public/assets/images/.gitkeep
+!public/assets/images/logo.png
 
 # Cache
 cache/

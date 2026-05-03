@@ -327,6 +327,25 @@ class AdminController extends Controller {
         $this->redirect('admin/categories');
     }
 
+    public function editCategory($id) {
+        $this->checkAdmin();
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $kategoriModel = $this->model('Kategori');
+            
+            $nama = $_POST['nama'] ?? '';
+            $deskripsi = $_POST['deskripsi'] ?? '';
+            
+            if ($kategoriModel->update($id, $nama, $deskripsi)) {
+                $_SESSION['success'] = 'Kategori berhasil diupdate';
+            } else {
+                $_SESSION['error'] = 'Gagal mengupdate kategori';
+            }
+        }
+        
+        $this->redirect('admin/categories');
+    }
+
     public function deleteCategory($id) {
         $this->checkAdmin();
         

@@ -83,15 +83,9 @@ class AdminController extends Controller {
             $gambarPath = '';
             
             // Handle image upload or URL
-            if (isset($_FILES['gambar_file']) && $_FILES['gambar_file']['error'] !== UPLOAD_ERR_NO_FILE) {
+            if (isset($_FILES['gambar_file']) && $_FILES['gambar_file']['error'] === UPLOAD_ERR_OK) {
                 // Handle file upload
                 $file = $_FILES['gambar_file'];
-                
-                if ($file['error'] !== UPLOAD_ERR_OK) {
-                    $_SESSION['error'] = 'Terjadi error saat upload file';
-                    $this->redirect('admin/createDestination');
-                    return;
-                }
                 
                 // Validate file type
                 $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
@@ -131,9 +125,9 @@ class AdminController extends Controller {
                     return;
                 }
                 
-            } elseif (!empty($_POST['gambar'])) {
+            } elseif (!empty($_POST['gambar']) && trim($_POST['gambar']) !== '') {
                 // Handle URL input
-                $gambarPath = $_POST['gambar'];
+                $gambarPath = trim($_POST['gambar']);
             } else {
                 $_SESSION['error'] = 'Silakan pilih file gambar atau masukkan URL';
                 $this->redirect('admin/createDestination');
@@ -179,15 +173,9 @@ class AdminController extends Controller {
             $gambarPath = '';
             
             // Handle image upload or URL
-            if (isset($_FILES['gambar_file']) && $_FILES['gambar_file']['error'] !== UPLOAD_ERR_NO_FILE) {
+            if (isset($_FILES['gambar_file']) && $_FILES['gambar_file']['error'] === UPLOAD_ERR_OK) {
                 // Handle file upload
                 $file = $_FILES['gambar_file'];
-                
-                if ($file['error'] !== UPLOAD_ERR_OK) {
-                    $_SESSION['error'] = 'Terjadi error saat upload file';
-                    $this->redirect('admin/editDestination/' . $id);
-                    return;
-                }
                 
                 // Validate file type
                 $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
@@ -235,9 +223,9 @@ class AdminController extends Controller {
                     return;
                 }
                 
-            } elseif (!empty($_POST['gambar'])) {
+            } elseif (!empty($_POST['gambar']) && trim($_POST['gambar']) !== '') {
                 // Handle URL input
-                $gambarPath = $_POST['gambar'];
+                $gambarPath = trim($_POST['gambar']);
                 
                 // Delete old image if switching from file to URL
                 $oldDestination = $destinasiModel->getById($id);

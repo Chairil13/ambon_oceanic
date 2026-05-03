@@ -82,10 +82,18 @@ require_once __DIR__ . '/layouts/header.php';
                     <tr class="hover:bg-slate-50/40 transition-colors group destination-row" data-name="<?= strtolower($dest['nama']) ?>">
                         <td class="px-8 py-6">
                             <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 rounded-xl overflow-hidden shadow-sm">
+                                <div class="w-12 h-12 rounded-xl overflow-hidden shadow-sm bg-slate-100">
+                                    <?php 
+                                    $imageSrc = $dest['gambar'];
+                                    // If it's not a full URL, prepend BASE_URL
+                                    if (!filter_var($imageSrc, FILTER_VALIDATE_URL)) {
+                                        $imageSrc = BASE_URL . $imageSrc;
+                                    }
+                                    ?>
                                     <img class="w-full h-full object-cover" 
-                                         src="<?= htmlspecialchars($dest['gambar']) ?>"
-                                         alt="<?= htmlspecialchars($dest['nama']) ?>"/>
+                                         src="<?= htmlspecialchars($imageSrc) ?>"
+                                         alt="<?= htmlspecialchars($dest['nama']) ?>"
+                                         onerror="this.src='<?= BASE_URL ?>public/assets/images/logo.png'"/>
                                 </div>
                                 <div>
                                     <p class="font-bold text-slate-900"><?= htmlspecialchars($dest['nama']) ?></p>

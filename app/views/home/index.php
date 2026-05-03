@@ -174,8 +174,14 @@
             ?>
                 <!-- Large Card -->
                 <a href="<?= BASE_URL ?>destinasi/detail/<?= $dest['id'] ?>" class="md:col-span-8 md:row-span-2 relative rounded-[2rem] overflow-hidden group cursor-pointer">
+                    <?php 
+                    $imageSrc = $dest['gambar'];
+                    if (!filter_var($imageSrc, FILTER_VALIDATE_URL)) {
+                        $imageSrc = BASE_URL . $imageSrc;
+                    }
+                    ?>
                     <img alt="<?= htmlspecialchars($dest['nama']) ?>" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                         src="<?= htmlspecialchars($dest['gambar']) ?>"/>
+                         src="<?= htmlspecialchars($imageSrc) ?>"/>
                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                     <div class="absolute bottom-0 left-0 p-8 w-full">
                         <div class="flex justify-between items-end">
@@ -196,8 +202,14 @@
             <?php else: ?>
                 <!-- Small Card -->
                 <a href="<?= BASE_URL ?>destinasi/detail/<?= $dest['id'] ?>" class="md:col-span-4 md:row-span-1 relative rounded-[2rem] overflow-hidden group cursor-pointer bg-white">
+                    <?php 
+                    $imageSrc = $dest['gambar'];
+                    if (!filter_var($imageSrc, FILTER_VALIDATE_URL)) {
+                        $imageSrc = BASE_URL . $imageSrc;
+                    }
+                    ?>
                     <img alt="<?= htmlspecialchars($dest['nama']) ?>" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                         src="<?= htmlspecialchars($dest['gambar']) ?>"/>
+                         src="<?= htmlspecialchars($imageSrc) ?>"/>
                     <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
                     <div class="absolute bottom-0 left-0 p-6 w-full">
                         <span class="bg-cyan-100 text-cyan-900 text-xs font-bold px-3 py-1 rounded-full mb-2 inline-block">

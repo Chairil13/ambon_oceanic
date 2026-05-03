@@ -1,4 +1,8 @@
 <?php 
+/**
+ * @var array $categories - List of categories from controller
+ * @var array|null $destination - Destination data (only for edit mode)
+ */
 $active_menu = 'destinations';
 $page_title = isset($destination) ? 'Edit Destination' : 'Add New Destination';
 require_once __DIR__ . '/layouts/header.php'; 
@@ -36,7 +40,7 @@ require_once __DIR__ . '/layouts/header.php';
 
 <!-- Form Card -->
 <div class="max-w-4xl">
-    <form method="POST" class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+    <form method="POST" enctype="multipart/form-data" class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
         <!-- Form Header -->
         <div class="p-6 border-b border-slate-50 bg-gradient-to-r from-sky-50 to-blue-50">
             <h3 class="font-bold text-xl text-slate-900">Destination Information</h3>
@@ -153,7 +157,7 @@ require_once __DIR__ . '/layouts/header.php';
                     <div class="relative">
                         <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">image</span>
                         <input 
-                            type="text" 
+                            type="url" 
                             id="gambar" 
                             name="gambar" 
                             value="<?= htmlspecialchars($destination['gambar'] ?? '') ?>"
@@ -271,6 +275,8 @@ function switchImageTab(tab) {
     const urlTab = document.getElementById('urlTab');
     const uploadSection = document.getElementById('uploadSection');
     const urlSection = document.getElementById('urlSection');
+    const urlInput = document.getElementById('gambar');
+    const fileInput = document.getElementById('gambar_file');
     
     if (tab === 'upload') {
         // Style upload tab as active
@@ -281,8 +287,10 @@ function switchImageTab(tab) {
         uploadSection.classList.remove('hidden');
         urlSection.classList.add('hidden');
         
-        // Clear URL input
-        document.getElementById('gambar').value = '';
+        // Clear URL input only if it's empty or user hasn't entered anything
+        if (urlInput.value.trim() === '' || !urlInput.value.startsWith('http')) {
+            urlInput.value = '';
+        }
     } else {
         // Style URL tab as active
         urlTab.className = 'flex-1 px-4 py-3 font-bold text-sky-600 border-b-2 border-sky-600 bg-sky-50/50 transition-all text-sm';
@@ -292,8 +300,8 @@ function switchImageTab(tab) {
         urlSection.classList.remove('hidden');
         uploadSection.classList.add('hidden');
         
-        // Clear file input
-        document.getElementById('gambar_file').value = '';
+        // Clear file input and preview
+        fileInput.value = '';
         document.getElementById('fileName').classList.add('hidden');
     }
 }
@@ -336,6 +344,8 @@ function previewImageFile(input) {
 function previewImageUrl(url) {
     const preview = document.getElementById('imagePreview');
     const previewImg = document.getElementById('previewImg');
+    
+    url = url.trim();
     
     if (url) {
         previewImg.src = url;

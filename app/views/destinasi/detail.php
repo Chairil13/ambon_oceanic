@@ -1,9 +1,16 @@
+<?php
+/**
+ * @var string $title - Page title from controller
+ * @var array $destination - Destination details
+ * @var bool $isFavorite - Whether destination is in user's favorites
+ */
+?>
 <!DOCTYPE html>
 <html class="light" lang="id">
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title><?= $title ?></title>
+    <title><?= $title ?? APP_NAME ?></title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -44,8 +51,15 @@
         <!-- Main Content -->
         <div class="md:col-span-2 space-y-6">
             <div class="relative h-96 rounded-3xl overflow-hidden">
-                <img src="<?= htmlspecialchars($destination['gambar']) ?>" alt="<?= htmlspecialchars($destination['nama']) ?>" 
-                     class="w-full h-full object-cover"/>
+                <?php 
+                $imageSrc = $destination['gambar'];
+                if (!filter_var($imageSrc, FILTER_VALIDATE_URL)) {
+                    $imageSrc = BASE_URL . $imageSrc;
+                }
+                ?>
+                <img src="<?= htmlspecialchars($imageSrc) ?>" alt="<?= htmlspecialchars($destination['nama']) ?>" 
+                     class="w-full h-full object-cover"
+                     onerror="this.src='<?= BASE_URL ?>public/assets/images/logo.png'"/>
             </div>
             
             <div>

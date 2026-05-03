@@ -1,0 +1,24 @@
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+storage/logs/*.log
+
+# Environment
+.env
+
+# Uploads
+public/assets/images/*
+!public/assets/images/.gitkeep
+
+# Cache
+cache/
+temp/

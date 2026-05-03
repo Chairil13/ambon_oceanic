@@ -1,0 +1,11 @@
+RewriteEngine On
+
+# Redirect to public folder if accessing assets
+RewriteCond %{REQUEST_URI} ^/ambon_oceanic/public/assets/
+RewriteRule ^(.*)$ $1 [L]
+
+# Main routing
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]

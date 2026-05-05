@@ -112,4 +112,75 @@ class ChatbotController extends Controller {
             'message' => $result ? 'Riwayat chat berhasil dihapus' : 'Gagal menghapus riwayat chat'
         ]);
     }
+    
+    public function voice() {
+        // Check if user is logged in
+        if (!$this->isLoggedIn()) {
+            // Redirect to login with return URL
+            $_SESSION['return_url'] = BASE_URL . 'chatbot/voice';
+            header('Location: ' . BASE_URL . 'auth/login');
+            exit;
+        }
+        
+        $data = [
+            'title' => 'Voice Chat - ' . APP_NAME
+        ];
+        
+        $this->view('chatbot/voice', $data);
+    }
+    
+    public function getVoiceApiKey() {
+        header('Content-Type: application/json');
+        
+        // Get Gemini API key from config or environment
+        // For security, you should store this in config/app.php or .env file
+        $apiKey = defined('GEMINI_API_KEY') ? GEMINI_API_KEY : '';
+        
+        if (empty($apiKey)) {
+            echo json_encode([
+                'success' => false,
+                'error' => 'API key not configured'
+            ]);
+            return;
+        }
+        
+        echo json_encode([
+            'success' => true,
+            'apiKey' => $apiKey
+        ]);
+    }
+    
+    public function getDestinations() {
+        header('Content-Type: application/json');
+        
+        try {
+            $destinasiModel = $this->model('Destinasi');
+            $destinations = $destinasiModel->getAll();
+            
+            // Format data untuk AI
+            $formattedDestinations = [];
+            foreach ($destinations as $dest) {
+                $formattedDestinations[] = [
+                    'nama' => $dest['nama'],
+                    'kategori' => $dest['kategori_nama'],
+                    'lokasi' => $dest['lokasi'],
+                    'deskripsi' => $dest['deskripsi'],
+                    'jam_buka' => $dest['jam_buka'],
+                    'harga_tiket' => 'Rp ' . number_format($dest['harga_tiket'], 0, ',', '.')
+                ];
+            }
+            
+            echo json_encode([
+                'success' => true,
+                'destinations' => $formattedDestinations,
+                'total' => count($formattedDestinations)
+            ]);
+            
+        } catch (Exception $e) {
+            echo json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
 }

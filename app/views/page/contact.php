@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var string $title Page title passed from controller
+ */
+?>
 <!DOCTYPE html>
 <html class="light" lang="id">
 <head>
@@ -54,30 +59,56 @@
         <!-- Contact Form -->
         <div class="bg-white rounded-3xl shadow-lg p-8">
             <h2 class="font-['Plus_Jakarta_Sans'] text-2xl font-bold mb-6">Kirim Pesan</h2>
-            <form id="contactForm" class="space-y-4">
+            <form action="https://formsubmit.co/chairilali13@gmail.com" method="POST" class="space-y-4">
+                <!-- FormSubmit Configuration -->
+                <input type="hidden" name="_subject" value="Pesan Baru dari Ambon Oceanic Contact Form">
+                <input type="hidden" name="_captcha" value="false">
+                <input type="hidden" name="_template" value="table">
+                <input type="text" name="_honey" style="display:none">
+                <input type="hidden" name="_next" value="<?= BASE_URL ?>page/contact?success=true">
+                
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-2">Nama Lengkap</label>
-                    <input type="text" id="name" required
+                    <input type="text" name="Nama Lengkap" required
                            class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none"
                            placeholder="Masukkan nama Anda">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-2">Email</label>
-                    <input type="email" id="email" required
+                    <input type="email" name="Alamat Email" required
                            class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none"
                            placeholder="nama@email.com">
                 </div>
                 <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Nomor Telepon (Opsional)</label>
+                    <input type="tel" name="Nomor Telepon"
+                           class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none"
+                           placeholder="+62 812 3456 7890">
+                </div>
+                <div>
                     <label class="block text-sm font-medium text-slate-700 mb-2">Pesan</label>
-                    <textarea id="message" rows="5" required
+                    <textarea name="Isi Pesan" rows="5" required
                               class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none resize-none"
                               placeholder="Tulis pesan Anda..."></textarea>
                 </div>
-                <button type="submit" id="submitBtn"
+                <button type="submit"
                         class="w-full bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-xl px-6 py-3 font-bold transition-all">
                     Kirim Pesan
                 </button>
             </form>
+            
+            <!-- Success Message -->
+            <?php if (isset($_GET['success']) && $_GET['success'] === 'true'): ?>
+            <div class="mt-4 bg-green-50 border border-green-200 rounded-xl p-4 animate-fadeIn">
+                <div class="flex items-start gap-3">
+                    <span class="material-symbols-outlined text-green-600">check_circle</span>
+                    <div>
+                        <h4 class="font-bold text-green-900 mb-1">Pesan Terkirim!</h4>
+                        <p class="text-sm text-green-700">Terima kasih telah menghubungi kami. Kami akan segera merespons pesan Anda.</p>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
         </div>
 
         <!-- Contact Info -->
@@ -85,7 +116,7 @@
             <!-- Address -->
             <div class="bg-white rounded-3xl shadow-lg p-6">
                 <div class="flex items-start gap-4">
-                    <div class="bg-sky-100 rounded-full p-3">
+                    <div class="bg-sky-100 rounded-full p-3 flex-shrink-0" style="aspect-ratio: 1/1; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center;">
                         <span class="material-symbols-outlined text-sky-600 text-2xl">location_on</span>
                     </div>
                     <div>
@@ -102,7 +133,7 @@
             <!-- Email -->
             <div class="bg-white rounded-3xl shadow-lg p-6">
                 <div class="flex items-start gap-4">
-                    <div class="bg-amber-100 rounded-full p-3">
+                    <div class="bg-amber-100 rounded-full p-3 flex-shrink-0" style="aspect-ratio: 1/1; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center;">
                         <span class="material-symbols-outlined text-amber-600 text-2xl">email</span>
                     </div>
                     <div>
@@ -118,7 +149,7 @@
             <!-- Phone -->
             <div class="bg-white rounded-3xl shadow-lg p-6">
                 <div class="flex items-start gap-4">
-                    <div class="bg-green-100 rounded-full p-3">
+                    <div class="bg-green-100 rounded-full p-3 flex-shrink-0" style="aspect-ratio: 1/1; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center;">
                         <span class="material-symbols-outlined text-green-600 text-2xl">phone</span>
                     </div>
                     <div>
@@ -135,14 +166,25 @@
             <div class="bg-gradient-to-br from-sky-500 to-blue-600 rounded-3xl shadow-lg p-6 text-white">
                 <h3 class="font-bold text-lg mb-4">Ikuti Kami</h3>
                 <div class="flex gap-3">
-                    <a href="#" class="bg-white/20 hover:bg-white/30 rounded-full p-3 transition-colors">
-                        <span class="material-symbols-outlined">share</span>
+                    <!-- Instagram -->
+                    <a href="https://instagram.com/ambonoceanic" target="_blank" rel="noopener noreferrer" 
+                       class="bg-white/20 hover:bg-white/30 rounded-full p-3 transition-colors inline-flex items-center justify-center" 
+                       style="aspect-ratio: 1/1; width: 48px; height: 48px;"
+                       title="Follow us on Instagram">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                        </svg>
                     </a>
-                    <a href="#" class="bg-white/20 hover:bg-white/30 rounded-full p-3 transition-colors">
-                        <span class="material-symbols-outlined">photo_camera</span>
-                    </a>
-                    <a href="#" class="bg-white/20 hover:bg-white/30 rounded-full p-3 transition-colors">
-                        <span class="material-symbols-outlined">video_library</span>
+                    <!-- Facebook -->
+                    <a href="https://facebook.com/ambonoceanic" target="_blank" rel="noopener noreferrer"
+                       class="bg-white/20 hover:bg-white/30 rounded-full p-3 transition-colors inline-flex items-center justify-center" 
+                       style="aspect-ratio: 1/1; width: 48px; height: 48px;"
+                       title="Follow us on Facebook">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                        </svg>
                     </a>
                 </div>
             </div>
@@ -159,44 +201,15 @@
         <div class="text-sm text-slate-500">© <?= date('Y') ?> <?= APP_NAME ?>. All rights reserved.</div>
     </div>
 </footer>
-
-<script>
-const contactForm = document.getElementById('contactForm');
-const submitBtn = document.getElementById('submitBtn');
-
-contactForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
-    const message = document.getElementById('message').value;
-    
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Mengirim...';
-    
-    fetch('<?= BASE_URL ?>page/sendContact', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({name, email, message})
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            alert(data.message);
-            contactForm.reset();
-        } else {
-            alert(data.error || 'Gagal mengirim pesan');
-        }
-    })
-    .catch(err => {
-        alert('Terjadi kesalahan. Silakan coba lagi.');
-    })
-    .finally(() => {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Kirim Pesan';
-    });
-});
-</script>
+<style>
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeIn {
+    animation: fadeIn 0.5s ease-out;
+}
+</style>
 
 </body>
 </html>

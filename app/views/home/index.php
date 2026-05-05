@@ -63,7 +63,7 @@
         <div class="flex items-center gap-4">
             <?php if (isset($_SESSION['user_id'])): ?>
                 <div class="hidden md:flex items-center gap-3">
-                    <span class="text-sm text-slate-600"><?= $_SESSION['user_name'] ?></span>
+                    <span class="text-sm text-slate-600"><?= isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'User' ?></span>
                     <a href="<?= BASE_URL ?>auth/logout" class="text-slate-600 hover:text-sky-600">
                         <span class="material-symbols-outlined">logout</span>
                     </a>
@@ -193,18 +193,12 @@
                          src="<?= htmlspecialchars($imageSrc) ?>"/>
                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                     <div class="absolute bottom-0 left-0 p-8 w-full">
-                        <div class="flex justify-between items-end">
-                            <div>
-                                <span class="bg-cyan-100 text-cyan-900 text-xs font-bold px-3 py-1 rounded-full mb-3 inline-block">
-                                    <?= htmlspecialchars($dest['kategori_nama']) ?>
-                                </span>
-                                <h3 class="font-['Plus_Jakarta_Sans'] text-3xl font-bold text-white mb-2"><?= htmlspecialchars($dest['nama']) ?></h3>
-                                <p class="text-white/80 text-sm max-w-md"><?= substr(htmlspecialchars($dest['deskripsi']), 0, 120) ?>...</p>
-                            </div>
-                            <div class="glass-panel text-slate-900 px-3 py-1.5 rounded-full flex items-center gap-1 font-bold text-sm">
-                                <span class="material-symbols-outlined text-amber-500 text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
-                                4.8
-                            </div>
+                        <div>
+                            <span class="bg-cyan-100 text-cyan-900 text-xs font-bold px-3 py-1 rounded-full mb-3 inline-block">
+                                <?= htmlspecialchars($dest['kategori_nama']) ?>
+                            </span>
+                            <h3 class="font-['Plus_Jakarta_Sans'] text-3xl font-bold text-white mb-2"><?= htmlspecialchars($dest['nama']) ?></h3>
+                            <p class="text-white/80 text-sm max-w-md"><?= substr(htmlspecialchars($dest['deskripsi']), 0, 120) ?>...</p>
                         </div>
                     </div>
                 </a>

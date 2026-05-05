@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var string $title Page title passed from controller
+ */
+?>
 <!DOCTYPE html>
 <html class="light" lang="id">
 <head>
@@ -94,6 +99,11 @@
                     <input type="text" id="messageInput" 
                            class="flex-grow bg-slate-50 border-slate-200 rounded-2xl px-6 py-4 focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none" 
                            placeholder="Ketik pesan Anda..." required/>
+                    <button type="button" id="voiceChatBtn"
+                       class="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white rounded-2xl px-6 py-4 font-bold flex items-center gap-2 transition-all"
+                       title="Voice Chat">
+                        <span class="material-symbols-outlined">mic</span>
+                    </button>
                     <button type="submit" id="sendBtn"
                             class="bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-2xl px-8 py-4 font-bold flex items-center gap-2 transition-all">
                         <span class="material-symbols-outlined">send</span>
@@ -139,12 +149,112 @@ const chatBox = document.getElementById('chatBox');
 const chatForm = document.getElementById('chatForm');
 const messageInput = document.getElementById('messageInput');
 const sendBtn = document.getElementById('sendBtn');
+const voiceChatBtn = document.getElementById('voiceChatBtn');
 
 // In-memory chat history for guest users (lost on refresh)
 let guestChatHistory = [];
 
 // Check if user is logged in
 const isLoggedIn = <?= isset($_SESSION['user_id']) ? 'true' : 'false' ?>;
+
+// Voice chat button handler
+voiceChatBtn.addEventListener('click', function() {
+    if (!isLoggedIn) {
+        // Show info card instead of alert
+        showLoginRequiredCard();
+    } else {
+        // Redirect to voice chat
+        window.location.href = '<?= BASE_URL ?>chatbot/voice';
+    }
+});
+
+// Show login required card
+function showLoginRequiredCard() {
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'loginRequiredOverlay';
+    overlay.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn';
+    overlay.style.animation = 'fadeIn 0.3s ease-out';
+    
+    // Create card
+    overlay.innerHTML = `
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 transform animate-slideUp" style="animation: slideUp 0.3s ease-out">
+            <div class="text-center">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 mb-6" style="aspect-ratio: 1/1;">
+                    <span class="material-symbols-outlined text-white text-4xl" style="font-variation-settings: 'FILL' 1;">lock</span>
+                </div>
+                <h2 class="font-['Plus_Jakarta_Sans'] text-2xl font-bold mb-3 text-slate-900">Login Diperlukan</h2>
+                <p class="text-slate-600 mb-6">Voice Chat adalah fitur premium yang hanya tersedia untuk pengguna yang sudah login.</p>
+                
+                <div class="bg-purple-50 border border-purple-200 rounded-2xl p-4 mb-6">
+                    <div class="flex items-start gap-3 text-left">
+                        <span class="material-symbols-outlined text-purple-600 mt-0.5">info</span>
+                        <div class="text-sm text-purple-900">
+                            <p class="font-semibold mb-1">Keuntungan Login:</p>
+                            <ul class="space-y-1 text-purple-700">
+                                <li>• Akses Voice Chat dengan AI</li>
+                                <li>• Riwayat percakapan tersimpan</li>
+                                <li>• Simpan destinasi favorit</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button onclick="closeLoginCard()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 px-6 rounded-xl transition-all">
+                        Batal
+                    </button>
+                    <a href="<?= BASE_URL ?>auth/login" class="flex-1 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-bold py-3 px-6 rounded-xl transition-all text-center">
+                        Login Sekarang
+                    </a>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Add to body
+    document.body.appendChild(overlay);
+    
+    // Close on overlay click
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+            closeLoginCard();
+        }
+    });
+}
+
+// Close login card
+function closeLoginCard() {
+    const overlay = document.getElementById('loginRequiredOverlay');
+    if (overlay) {
+        overlay.style.animation = 'fadeOut 0.3s ease-out';
+        setTimeout(() => overlay.remove(), 300);
+    }
+}
+
+// Add animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+    @keyframes slideUp {
+        from { 
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to { 
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+`;
+document.head.appendChild(style);
 
 chatForm.addEventListener('submit', function(e) {
     e.preventDefault();

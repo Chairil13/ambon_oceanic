@@ -1,0 +1,16 @@
+{
+  "name": "ambon-oceanic-voice-server",
+  "version": "1.0.0",
+  "description": "Voice chat server for Ambon Oceanic using Gemini Live API",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0",
+    "dotenv": "^16.4.5",
+    "node-fetch": "^3.3.2"
+  }
+}

@@ -2,15 +2,16 @@
 
 class Chat extends Model {
     
-    public function saveLog($user_id, $message, $response) {
-        $query = "INSERT INTO chat_logs (user_id, message, response, created_at) 
-                  VALUES (:user_id, :message, :response, NOW())";
+    public function saveLog($user_id, $message, $response, $destinations = null) {
+        $query = "INSERT INTO chat_logs (user_id, message, response, destinations, created_at) 
+                  VALUES (:user_id, :message, :response, :destinations, NOW())";
         
         $stmt = $this->conn->prepare($query);
         
         $stmt->bindParam(':user_id', $user_id);
         $stmt->bindParam(':message', $message);
         $stmt->bindParam(':response', $response);
+        $stmt->bindParam(':destinations', $destinations);
         
         return $stmt->execute();
     }
@@ -79,13 +80,13 @@ class Chat extends Model {
         }
         
         // System instruction (separate from conversation)
-        $systemInstruction = "Anda adalah Oceanic, asisten virtual pemandu wisata Ambon yang dibuat oleh Alin, Dede, dan tim. Gunakan data berikut:\n\n" . $knowledgeBase;
+        $systemInstruction = "Anda adalah Oceanic, asisten virtual pemandu wisata Ambon yang dibuat oleh Alin, Dede, Joiner, Devi. Gunakan data berikut:\n\n" . $knowledgeBase;
         $systemInstruction .= "\nIDENTITAS ANDA:\n";
         $systemInstruction .= "- Nama: Oceanic\n";
-        $systemInstruction .= "- Pembuat: Alin, Dede, dan tim\n";
+        $systemInstruction .= "- Pembuat: Alin, Dede, Joiner, Devi\n";
         $systemInstruction .= "- Tugas: Membantu wisatawan menemukan dan mengenal destinasi wisata di Ambon\n\n";
         $systemInstruction .= "INSTRUKSI PENTING:\n";
-        $systemInstruction .= "1. Jika ditanya siapa Anda, jawab: 'Saya Oceanic, asisten virtual yang dibuat oleh Alin, Dede, dan tim untuk membantu Anda menjelajahi wisata Ambon'\n";
+        $systemInstruction .= "1. Jika ditanya siapa Anda, jawab: 'Saya Oceanic, asisten virtual yang dibuat oleh Alin, Dede, Joiner, Devi untuk membantu Anda menjelajahi wisata Ambon'\n";
         $systemInstruction .= "2. PRIORITAS UTAMA: Gunakan data destinasi di atas untuk menjawab pertanyaan tentang tempat wisata, harga tiket, jam buka, dan lokasi di Ambon.\n";
         $systemInstruction .= "3. Jika destinasi yang ditanyakan ADA dalam data di atas, berikan informasi HANYA dari data tersebut.\n";
         $systemInstruction .= "4. Jika destinasi yang ditanyakan TIDAK ADA dalam data, Anda BOLEH menggunakan pengetahuan umum Anda tentang Ambon, tetapi sebutkan bahwa informasi tersebut belum tersedia dalam sistem kami.\n";

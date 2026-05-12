@@ -14,11 +14,17 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <!-- Leaflet CSS for Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         .primary-gradient { background: linear-gradient(135deg, #005e97 0%, #0077be 100%); }
+        .destination-map { 
+            height: 100%;
+            min-height: 120px;
+        }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 font-['Manrope']">
+<body class="bg-slate-50 text-slate-900 font-['Manrope'] min-h-screen flex flex-col">
 
 <!-- Navigation -->
 <nav class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-3xl shadow-sm">
@@ -85,7 +91,8 @@
     <?php else: ?>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <?php foreach ($destinations as $dest): ?>
-                <a href="<?= BASE_URL ?>destinasi/detail/<?= $dest['id'] ?>" class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow group">
+                <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow group cursor-pointer" 
+                     onclick="window.location.href='<?= BASE_URL ?>destinasi/detail/<?= $dest['id'] ?>'">
                     <div class="relative h-48 overflow-hidden">
                         <?php 
                         $imageSrc = $dest['gambar'];
@@ -103,31 +110,57 @@
                         </div>
                     </div>
                     <div class="p-6">
-                        <h3 class="font-['Plus_Jakarta_Sans'] text-xl font-bold mb-2"><?= htmlspecialchars($dest['nama']) ?></h3>
+                        <h3 class="font-['Plus_Jakarta_Sans'] text-xl font-bold mb-2 group-hover:text-sky-600 transition-colors"><?= htmlspecialchars($dest['nama']) ?></h3>
                         <p class="text-slate-600 text-sm mb-4 line-clamp-2"><?= substr(htmlspecialchars($dest['deskripsi']), 0, 100) ?>...</p>
-                        <div class="space-y-2 text-sm text-slate-600">
-                            <div class="flex items-center gap-2">
-                                <span class="material-symbols-outlined text-sm">location_on</span>
-                                <?= htmlspecialchars(explode(',', $dest['lokasi'])[0]) ?>
+                        
+                        <!-- Info & Map Grid -->
+                        <div class="grid grid-cols-2 gap-4 items-start">
+                            <!-- Left: Info -->
+                            <div class="space-y-3 text-sm text-slate-600">
+                                <div class="flex items-start gap-2">
+                                    <span class="material-symbols-outlined text-sm mt-0.5 flex-shrink-0">location_on</span>
+                                    <span class="line-clamp-2"><?= htmlspecialchars($dest['lokasi']) ?></span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-sm flex-shrink-0">schedule</span>
+                                    <span><?= htmlspecialchars($dest['jam_buka']) ?></span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-sm flex-shrink-0">confirmation_number</span>
+                                    <span class="font-bold text-slate-900">Rp <?= number_format($dest['harga_tiket'], 0, ',', '.') ?></span>
+                                </div>
                             </div>
-                            <div class="flex items-center gap-2">
-                                <span class="material-symbols-outlined text-sm">schedule</span>
-                                <?= htmlspecialchars($dest['jam_buka']) ?>
+                            
+                            <!-- Right: Mini Map -->
+                            <?php if (!empty($dest['latitude']) && !empty($dest['longitude'])): ?>
+                            <div class="h-full" onclick="event.stopPropagation();">
+                                <div id="map-<?= $dest['id'] ?>" 
+                                     class="destination-map rounded-xl overflow-hidden border-2 border-slate-200 cursor-pointer hover:border-sky-400 transition-colors shadow-sm"
+                                     data-lat="<?= $dest['latitude'] ?>"
+                                     data-lng="<?= $dest['longitude'] ?>"
+                                     data-name="<?= htmlspecialchars($dest['nama']) ?>"
+                                     title="Click to open in Google Maps">
+                                </div>
                             </div>
-                            <div class="flex items-center gap-2">
-                                <span class="material-symbols-outlined text-sm">confirmation_number</span>
-                                Rp <?= number_format($dest['harga_tiket'], 0, ',', '.') ?>
+                            <?php else: ?>
+                            <!-- Placeholder if no coordinates -->
+                            <div class="h-full flex items-center justify-center bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 min-h-[120px]">
+                                <div class="text-center text-slate-400 text-xs">
+                                    <span class="material-symbols-outlined text-2xl mb-1">location_off</span>
+                                    <p>No location data</p>
+                                </div>
                             </div>
+                            <?php endif; ?>
                         </div>
                     </div>
-                </a>
+                </div>
             <?php endforeach; ?>
         </div>
     <?php endif; ?>
 </main>
 
-<footer class="w-full bg-slate-100 border-t border-slate-200">
-    <div class="flex flex-col md:flex-row justify-between items-center px-8 py-12 gap-6 max-w-screen-2xl mx-auto">
+<footer class="w-full bg-slate-100 border-t border-slate-200 mt-auto">
+    <div class="flex flex-col md:flex-row justify-between items-center px-8 py-6 gap-4 max-w-screen-2xl mx-auto">
         <div class="flex items-center gap-2">
             <span class="material-symbols-outlined text-sky-900" style="font-variation-settings: 'FILL' 1;">water</span>
             <span class="font-['Plus_Jakarta_Sans'] font-bold text-lg text-sky-900">Ambon Oceanic</span>
@@ -135,6 +168,63 @@
         <div class="text-sm text-slate-500">© <?= date('Y') ?> <?= APP_NAME ?>. All rights reserved.</div>
     </div>
 </footer>
+
+<!-- Leaflet JS for Map -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all mini maps
+    const mapElements = document.querySelectorAll('[id^="map-"]');
+    
+    mapElements.forEach(function(mapElement) {
+        const lat = parseFloat(mapElement.dataset.lat);
+        const lng = parseFloat(mapElement.dataset.lng);
+        const name = mapElement.dataset.name;
+        
+        if (!isNaN(lat) && !isNaN(lng)) {
+            // Create map
+            const map = L.map(mapElement, {
+                center: [lat, lng],
+                zoom: 13,
+                zoomControl: false,
+                dragging: false,
+                scrollWheelZoom: false,
+                doubleClickZoom: false,
+                touchZoom: false
+            });
+            
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap',
+                maxZoom: 19
+            }).addTo(map);
+            
+            // Custom marker icon
+            const customIcon = L.divIcon({
+                className: 'custom-marker',
+                html: '<div style="background-color: #0ea5e9; width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;"><span style="transform: rotate(45deg); font-size: 16px;">📍</span></div>',
+                iconSize: [30, 30],
+                iconAnchor: [15, 30]
+            });
+            
+            // Add marker
+            L.marker([lat, lng], { icon: customIcon }).addTo(map);
+            
+            // Click to open Google Maps (prevent card navigation)
+            mapElement.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank');
+            });
+            
+            // Prevent map interactions from triggering card click
+            mapElement.addEventListener('mousedown', function(e) {
+                e.stopPropagation();
+            });
+        }
+    });
+});
+</script>
 
 </body>
 </html>

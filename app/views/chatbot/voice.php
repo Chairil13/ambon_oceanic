@@ -114,7 +114,7 @@
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 text-slate-900 font-['Manrope'] min-h-screen">
+<body class="bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 text-slate-900 font-['Manrope'] min-h-screen flex flex-col">
 
 <!-- Navigation -->
 <nav class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-3xl shadow-sm">
@@ -200,6 +200,18 @@
             
             <!-- Controls -->
             <div class="p-8 bg-white/80 backdrop-blur-xl border-t border-slate-200">
+                <div class="mb-6 flex justify-center">
+                    <div class="bg-white px-4 py-2 rounded-xl shadow-sm border border-purple-100 flex items-center gap-3 transition-all hover:border-purple-300">
+                        <span class="material-symbols-outlined text-purple-500">record_voice_over</span>
+                        <select id="voiceSelect" class="bg-transparent border-none text-slate-700 font-medium focus:ring-0 cursor-pointer text-sm outline-none w-48">
+                            <option value="Aoede">Suara 1 (Aoede - Wanita)</option>
+                            <option value="Charon">Suara 2 (Charon - Pria)</option>
+                            <option value="Fenrir">Suara 3 (Fenrir - Pria)</option>
+                            <option value="Kore">Suara 4 (Kore - Wanita)</option>
+                            <option value="Puck" selected>Suara 5 (Puck - Pria)</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="flex items-center justify-center gap-6">
                     <button id="connectBtn" 
                             class="relative bg-gradient-to-br from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white rounded-full w-24 h-24 flex items-center justify-center shadow-2xl transition-all transform hover:scale-110 active:scale-95">
@@ -220,7 +232,7 @@
 </main>
 
 <footer class="w-full bg-slate-100 border-t border-slate-200 mt-16">
-    <div class="flex flex-col md:flex-row justify-between items-center px-8 py-12 gap-6 max-w-screen-2xl mx-auto">
+    <div class="flex flex-col md:flex-row justify-between items-center px-8 py-6 gap-4 max-w-screen-2xl mx-auto">
         <div class="flex items-center gap-2">
             <span class="material-symbols-outlined text-sky-900" style="font-variation-settings: 'FILL' 1;">water</span>
             <span class="font-['Plus_Jakarta_Sans'] font-bold text-lg text-sky-900">Ambon Oceanic</span>

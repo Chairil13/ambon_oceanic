@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 03, 2026 at 07:55 AM
+-- Generation Time: May 10, 2026 at 03:04 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -95,7 +95,7 @@ INSERT INTO `chat_logs` (`id`, `user_id`, `message`, `response`, `created_at`) V
 (32, NULL, 'berapa biaya masuknya?', 'Untuk Pantai Natsepa, biaya masuknya adalah Rp 10.000.', '2026-04-24 04:07:48'),
 (33, NULL, 'Kuliner khas Ambon yang wajib dicoba', 'Untuk kuliner khas Ambon yang wajib dicoba, Anda bisa mengunjungi Pasar Mardika. Pasar ini buka dari jam 06:00 sampai 18:00 dan tidak ada biaya masuk. Di sana Anda bisa menemukan berbagai macam kuliner khas Ambon dan hasil laut yang segar.', '2026-04-24 04:15:57'),
 (34, NULL, 'biaya masuknya berapa?', 'Untuk Pantai Natsepa biaya masuknya Rp 10.000.', '2026-04-24 04:16:40'),
-(39, 1, 'Rekomendasi pantai terbaik di Ambon', 'Halo! Saya Oceanic, asisten wisata Ambon Anda. Berdasarkan data kami, ada dua pantai yang sangat populer dan menjadi rekomendasi utama di Ambon:\n\n1. Pantai Liang\nPantai ini berlokasi di Desa Liang, Kecamatan Salahutu. Pantai Liang dikenal sebagai salah satu pantai terindah di Indonesia karena memiliki pasir putih yang sangat halus dan air laut biru yang jernih. Tempat ini buka 24 jam dengan harga tiket masuk sebesar Rp 15.000.\n\n2. Pantai Natsepa\nTerletak di Desa Suli, Kecamatan Salahutu, Kabupaten Maluku Tengah. Pantai ini menawarkan hamparan pasir putih dan air laut yang jernih, sangat cocok bagi Anda yang ingin berenang atau snorkeling. Pantai Natsepa buka 24 jam dengan harga tiket masuk Rp 10.000.\n\nKedua pantai ini menawarkan keindahan alam yang luar biasa dan sangat layak untuk dikunjungi. Apakah Anda membutuhkan informasi tambahan mengenai lokasi atau transportasi menuju ke sana?', '2026-04-24 05:27:03');
+(39, NULL, 'Rekomendasi pantai terbaik di Ambon', 'Halo! Saya Oceanic, asisten wisata Ambon Anda. Berdasarkan data kami, ada dua pantai yang sangat populer dan menjadi rekomendasi utama di Ambon:\n\n1. Pantai Liang\nPantai ini berlokasi di Desa Liang, Kecamatan Salahutu. Pantai Liang dikenal sebagai salah satu pantai terindah di Indonesia karena memiliki pasir putih yang sangat halus dan air laut biru yang jernih. Tempat ini buka 24 jam dengan harga tiket masuk sebesar Rp 15.000.\n\n2. Pantai Natsepa\nTerletak di Desa Suli, Kecamatan Salahutu, Kabupaten Maluku Tengah. Pantai ini menawarkan hamparan pasir putih dan air laut yang jernih, sangat cocok bagi Anda yang ingin berenang atau snorkeling. Pantai Natsepa buka 24 jam dengan harga tiket masuk Rp 10.000.\n\nKedua pantai ini menawarkan keindahan alam yang luar biasa dan sangat layak untuk dikunjungi. Apakah Anda membutuhkan informasi tambahan mengenai lokasi atau transportasi menuju ke sana?', '2026-04-24 05:27:03');
 
 -- --------------------------------------------------------
 
@@ -121,11 +121,10 @@ CREATE TABLE `destinasi` (
 --
 
 INSERT INTO `destinasi` (`id`, `nama`, `deskripsi`, `lokasi`, `gambar`, `jam_buka`, `harga_tiket`, `kategori_id`, `created_at`, `updated_at`) VALUES
-(1, 'Pantai Natsepa', 'Pantai dengan pasir putih dan air laut yang jernih. Cocok untuk berenang dan snorkeling.', 'Desa Suli, Kecamatan Salahutu, Kabupaten Maluku Tengah', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdQCLwdZbN5ZV76S72k2yF5UMDqZZJDI-rUQ&s', '24 Jam', 10000.00, 1, '2026-04-22 00:50:49', '2026-04-24 01:48:52'),
+(1, 'Pantai Natsepa', 'Pantai dengan pasir putih dan air laut yang jernih. Cocok untuk berenang dan snorkeling.', 'Desa Suli, Kecamatan Salahutu, Kabupaten Maluku Tengah', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdQCLwdZbN5ZV76S72k2yF5UMDqZZJDI-rUQ&s', '24 Jam', 20000.00, 1, '2026-04-22 00:50:49', '2026-05-03 06:14:11'),
 (2, 'Benteng Victoria', 'Benteng peninggalan Portugis yang dibangun pada abad ke-17. Menjadi saksi sejarah perjuangan rakyat Maluku.', 'Jl. Pattimura, Kota Ambon', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQaGaXGfXoREqxeeweFhZMMy_tTZ1mey869KQ&s', '08:00 - 17:00', 5000.00, 2, '2026-04-22 00:50:49', '2026-04-24 01:49:49'),
 (3, 'Pantai Liang', 'Pantai dengan pasir putih halus dan air laut biru jernih. Terkenal sebagai salah satu pantai terindah di Indonesia.', 'Desa Liang, Kecamatan Salahutu', 'https://asset.kompas.com/crops/XE0jgawhv2U8sPgDg47XIcEPgCw=/0x0:1000x667/750x500/data/photo/2022/07/05/62c46106b64c3.jpg', '24 Jam', 15000.00, 1, '2026-04-22 00:50:49', '2026-04-24 01:51:20'),
 (4, 'Masjid Raya Al-Fatah', 'Masjid megah dengan arsitektur modern yang menjadi ikon Kota Ambon.', 'Jl. Raya Pattimura, Kota Ambon', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTR21lzNgLFQ3ZpwQ1_dyshOMhz17zzuP2tIg&s', '05:00 - 21:00', 0.00, 5, '2026-04-22 00:50:49', '2026-04-24 01:52:11'),
-(5, 'Pasar Mardika', 'Pasar tradisional yang menjual berbagai kuliner khas Ambon dan hasil laut segar.', 'Jl. Said Perintah, Kota Ambon', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNivYiSSzD8jHOFjEvmoYUuLiVaaFwCuiMQw&s', '06:00 - 18:00', 0.00, 3, '2026-04-22 00:50:49', '2026-04-24 01:52:53'),
 (6, 'Pintu Kota', 'Gerbang bersejarah peninggalan Belanda yang menjadi landmark Kota Ambon.', 'Jl. Pattimura, Kota Ambon', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcShLxtbG4swLdbUCS4INK7Q7THkgVteY23S1Q&s', '24 Jam', 0.00, 2, '2026-04-22 00:50:49', '2026-04-24 01:53:33');
 
 -- --------------------------------------------------------
@@ -140,13 +139,6 @@ CREATE TABLE `favorites` (
   `destinasi_id` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `favorites`
---
-
-INSERT INTO `favorites` (`id`, `user_id`, `destinasi_id`, `created_at`) VALUES
-(1, 1, 3, '2026-05-03 05:41:00');
 
 -- --------------------------------------------------------
 
@@ -191,7 +183,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `created_at`) VALUES
-(1, 'chairil ali', 'chairilali13@gmail.com', '$2y$10$tTSgjKByVwAz5mUOSpF8ruav3WYGBbwu7B.YmS8lebb8FhVCu.4Eq', '2026-04-22 01:38:58');
+(2, 'Chairil Ali', 'chairilali13@gmail.com', '$2y$10$oCCHLYs9Kwbsxs//ax431eVK4bQaEPtMVOGh15UuJam0ERnryS8J2', '2026-05-05 11:09:40');
 
 --
 -- Indexes for dumped tables
@@ -261,7 +253,7 @@ ALTER TABLE `chat_logs`
 -- AUTO_INCREMENT for table `destinasi`
 --
 ALTER TABLE `destinasi`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `favorites`
@@ -273,13 +265,13 @@ ALTER TABLE `favorites`
 -- AUTO_INCREMENT for table `kategori`
 --
 ALTER TABLE `kategori`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Constraints for dumped tables

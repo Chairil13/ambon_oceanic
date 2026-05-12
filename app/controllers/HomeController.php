@@ -6,9 +6,15 @@ class HomeController extends Controller {
         $destinasiModel = $this->model('Destinasi');
         $kategoriModel = $this->model('Kategori');
         
+        // Get featured destinations, fallback to latest if none featured
+        $featured = $destinasiModel->getFeatured();
+        if (empty($featured)) {
+            $featured = $destinasiModel->getAll(3);
+        }
+        
         $data = [
             'title' => 'Home - ' . APP_NAME,
-            'destinations' => $destinasiModel->getAll(6),
+            'destinations' => $featured,
             'categories' => $kategoriModel->getAll()
         ];
         

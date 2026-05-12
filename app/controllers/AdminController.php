@@ -80,72 +80,107 @@ class AdminController extends Controller {
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $destinasiModel = $this->model('Destinasi');
+            $galleryModel = $this->model('DestinasiGallery');
             $gambarPath = '';
             
-            // Handle image upload or URL
-            if (isset($_FILES['gambar_file']) && $_FILES['gambar_file']['error'] === UPLOAD_ERR_OK) {
-                // Handle file upload
-                $file = $_FILES['gambar_file'];
+            // Create uploads directory if not exists
+            $uploadDir = 'public/assets/images/destinations/';
+            if (!file_exists($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+            
+            // Handle multiple images upload
+            if (isset($_FILES['gambar_files']) && !empty($_FILES['gambar_files']['name'][0])) {
+                $files = $_FILES['gambar_files'];
+                $fileCount = count($files['name']);
+                $uploadedImages = [];
                 
-                // Validate file type
-                $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-                $fileType = mime_content_type($file['tmp_name']);
+                for ($i = 0; $i < $fileCount; $i++) {
+                    if ($files['error'][$i] === UPLOAD_ERR_OK) {
+                        // Validate file type
+                        $fileType = mime_content_type($files['tmp_name'][$i]);
+                        if (!in_array($fileType, ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'])) {
+                            continue; // Skip invalid files
+                        }
+                        
+                        // Validate file size
+                        if ($files['size'][$i] > 5 * 1024 * 1024) {
+                            continue; // Skip files > 5MB
+                        }
+                        
+                        // Generate unique filename
+                        $extension = pathinfo($files['name'][$i], PATHINFO_EXTENSION);
+                        $filename = 'dest_' . time() . '_' . uniqid() . '_' . $i . '.' . $extension;
+                        $uploadPath = $uploadDir . $filename;
+                        
+                        // Move uploaded file
+                        if (move_uploaded_file($files['tmp_name'][$i], $uploadPath)) {
+                            $uploadedImages[] = $uploadPath;
+                        }
+                    }
+                }
                 
-                if (!in_array($fileType, $allowedTypes)) {
-                    $_SESSION['error'] = 'Format file tidak didukung. Gunakan JPG, PNG, atau GIF';
+                if (empty($uploadedImages)) {
+                    $_SESSION['error'] = 'Tidak ada gambar yang berhasil diupload';
                     $this->redirect('admin/createDestination');
                     return;
                 }
                 
-                // Validate file size (5MB max)
-                $maxSize = 5 * 1024 * 1024;
-                if ($file['size'] > $maxSize) {
-                    $_SESSION['error'] = 'Ukuran file maksimal 5MB';
-                    $this->redirect('admin/createDestination');
-                    return;
-                }
-                
-                // Create uploads directory if not exists
-                $uploadDir = 'public/assets/images/destinations/';
-                if (!file_exists($uploadDir)) {
-                    mkdir($uploadDir, 0755, true);
-                }
-                
-                // Generate unique filename
-                $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-                $filename = 'dest_' . time() . '_' . uniqid() . '.' . $extension;
-                $uploadPath = $uploadDir . $filename;
-                
-                // Move uploaded file
-                if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
-                    $gambarPath = $uploadPath;
-                } else {
-                    $_SESSION['error'] = 'Gagal mengupload file';
-                    $this->redirect('admin/createDestination');
-                    return;
-                }
-                
-            } elseif (!empty($_POST['gambar']) && trim($_POST['gambar']) !== '') {
-                // Handle URL input
-                $gambarPath = trim($_POST['gambar']);
+                // First image as primary
+                $gambarPath = $uploadedImages[0];
             } else {
-                $_SESSION['error'] = 'Silakan pilih file gambar atau masukkan URL';
+                $_SESSION['error'] = 'Silakan pilih minimal 1 gambar';
                 $this->redirect('admin/createDestination');
                 return;
+            }
+            
+            // Handle operating hours data
+            $operating_hours_mode = $_POST['operating_hours_mode'] ?? 'global';
+            $operating_hours_data = [];
+            
+            if ($operating_hours_mode === 'per_day') {
+                $days = ['senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu', 'minggu'];
+                foreach ($days as $day) {
+                    $is_open = isset($_POST["day_{$day}_is_open"]) ? true : false;
+                    $operating_hours_data[$day] = [
+                        'is_open' => $is_open,
+                        'open' => $is_open ? ($_POST["day_{$day}_open"] ?? '08:00') : '',
+                        'close' => $is_open ? ($_POST["day_{$day}_close"] ?? '17:00') : ''
+                    ];
+                }
+                // Use harga_tiket_perday for per day mode
+                $harga_tiket = $_POST['harga_tiket_perday'] ?? 0;
+            } else {
+                $operating_hours_data['global'] = $_POST['jam_buka'] ?? '';
+                $harga_tiket = $_POST['harga_tiket'] ?? 0;
             }
             
             $data = [
                 'nama' => $_POST['nama'] ?? '',
                 'deskripsi' => $_POST['deskripsi'] ?? '',
                 'lokasi' => $_POST['lokasi'] ?? '',
+                'latitude' => !empty($_POST['latitude']) ? $_POST['latitude'] : null,
+                'longitude' => !empty($_POST['longitude']) ? $_POST['longitude'] : null,
                 'gambar' => $gambarPath,
                 'jam_buka' => $_POST['jam_buka'] ?? '',
-                'harga_tiket' => $_POST['harga_tiket'] ?? '',
+                'hari_operasional' => $_POST['hari_operasional'] ?? 'Setiap Hari',
+                'operating_hours_mode' => $operating_hours_mode,
+                'operating_hours_data' => json_encode($operating_hours_data),
+                'harga_tiket' => $harga_tiket,
                 'kategori_id' => $_POST['kategori_id'] ?? ''
             ];
             
             if ($destinasiModel->create($data)) {
-                $_SESSION['success'] = 'Destinasi berhasil ditambahkan';
+                // Get the last inserted ID
+                $destinasiId = $destinasiModel->getLastInsertId();
+                
+                // Add all images to gallery
+                foreach ($uploadedImages as $index => $imagePath) {
+                    $is_primary = ($index === 0) ? 1 : 0; // First image is primary
+                    $galleryModel->add($destinasiId, $imagePath, $is_primary, $index);
+                }
+                
+                $_SESSION['success'] = 'Destinasi berhasil ditambahkan dengan ' . count($uploadedImages) . ' gambar';
             } else {
                 $_SESSION['error'] = 'Gagal menambahkan destinasi';
             }
@@ -168,85 +203,104 @@ class AdminController extends Controller {
         $this->checkAdmin();
         
         $destinasiModel = $this->model('Destinasi');
+        $galleryModel = $this->model('DestinasiGallery');
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $gambarPath = '';
+            // Create uploads directory if not exists
+            $uploadDir = 'public/assets/images/destinations/';
+            if (!file_exists($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
             
-            // Handle image upload or URL
-            if (isset($_FILES['gambar_file']) && $_FILES['gambar_file']['error'] === UPLOAD_ERR_OK) {
-                // Handle file upload
-                $file = $_FILES['gambar_file'];
+            // Get current primary image
+            $primaryImage = $galleryModel->getPrimaryImage($id);
+            $gambarPath = $primaryImage ? $primaryImage['image_path'] : '';
+            
+            // Handle new images upload
+            if (isset($_FILES['gambar_files']) && !empty($_FILES['gambar_files']['name'][0])) {
+                $files = $_FILES['gambar_files'];
+                $fileCount = count($files['name']);
+                $currentCount = $galleryModel->getCount($id);
+                $uploadedCount = 0;
                 
-                // Validate file type
-                $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-                $fileType = mime_content_type($file['tmp_name']);
-                
-                if (!in_array($fileType, $allowedTypes)) {
-                    $_SESSION['error'] = 'Format file tidak didukung. Gunakan JPG, PNG, atau GIF';
-                    $this->redirect('admin/editDestination/' . $id);
-                    return;
-                }
-                
-                // Validate file size (5MB max)
-                $maxSize = 5 * 1024 * 1024;
-                if ($file['size'] > $maxSize) {
-                    $_SESSION['error'] = 'Ukuran file maksimal 5MB';
-                    $this->redirect('admin/editDestination/' . $id);
-                    return;
-                }
-                
-                // Create uploads directory if not exists
-                $uploadDir = 'public/assets/images/destinations/';
-                if (!file_exists($uploadDir)) {
-                    mkdir($uploadDir, 0755, true);
-                }
-                
-                // Generate unique filename
-                $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-                $filename = 'dest_' . time() . '_' . uniqid() . '.' . $extension;
-                $uploadPath = $uploadDir . $filename;
-                
-                // Move uploaded file
-                if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
-                    // Delete old image if it's a local file
-                    $oldDestination = $destinasiModel->getById($id);
-                    if (!empty($oldDestination['gambar']) && 
-                        !filter_var($oldDestination['gambar'], FILTER_VALIDATE_URL) && 
-                        file_exists($oldDestination['gambar'])) {
-                        unlink($oldDestination['gambar']);
+                for ($i = 0; $i < $fileCount; $i++) {
+                    if ($files['error'][$i] === UPLOAD_ERR_OK) {
+                        // Validate file type
+                        $fileType = mime_content_type($files['tmp_name'][$i]);
+                        if (!in_array($fileType, ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'])) {
+                            continue;
+                        }
+                        
+                        // Validate file size
+                        if ($files['size'][$i] > 5 * 1024 * 1024) {
+                            continue;
+                        }
+                        
+                        // Generate unique filename
+                        $extension = pathinfo($files['name'][$i], PATHINFO_EXTENSION);
+                        $filename = 'dest_' . $id . '_' . time() . '_' . $i . '.' . $extension;
+                        $uploadPath = $uploadDir . $filename;
+                        
+                        // Move uploaded file
+                        if (move_uploaded_file($files['tmp_name'][$i], $uploadPath)) {
+                            // If this is first upload and no existing images, set as primary
+                            $is_primary = ($currentCount == 0 && $uploadedCount == 0) ? 1 : 0;
+                            $galleryModel->add($id, $uploadPath, $is_primary, $currentCount + $uploadedCount);
+                            
+                            // Update primary image path if this is the first image
+                            if ($is_primary) {
+                                $gambarPath = $uploadPath;
+                            }
+                            
+                            $uploadedCount++;
+                        }
                     }
-                    
-                    $gambarPath = $uploadPath;
-                } else {
-                    $_SESSION['error'] = 'Gagal mengupload file';
-                    $this->redirect('admin/editDestination/' . $id);
-                    return;
                 }
                 
-            } elseif (!empty($_POST['gambar']) && trim($_POST['gambar']) !== '') {
-                // Handle URL input
-                $gambarPath = trim($_POST['gambar']);
-                
-                // Delete old image if switching from file to URL
-                $oldDestination = $destinasiModel->getById($id);
-                if (!empty($oldDestination['gambar']) && 
-                    !filter_var($oldDestination['gambar'], FILTER_VALIDATE_URL) && 
-                    file_exists($oldDestination['gambar'])) {
-                    unlink($oldDestination['gambar']);
+                if ($uploadedCount > 0) {
+                    $_SESSION['success'] = $uploadedCount . ' gambar berhasil ditambahkan';
                 }
+            }
+            
+            // Update primary image if changed
+            if (empty($gambarPath)) {
+                $primaryImage = $galleryModel->getPrimaryImage($id);
+                $gambarPath = $primaryImage ? $primaryImage['image_path'] : '';
+            }
+            
+            // Handle operating hours data
+            $operating_hours_mode = $_POST['operating_hours_mode'] ?? 'global';
+            $operating_hours_data = [];
+            
+            if ($operating_hours_mode === 'per_day') {
+                $days = ['senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu', 'minggu'];
+                foreach ($days as $day) {
+                    $is_open = isset($_POST["day_{$day}_is_open"]) ? true : false;
+                    $operating_hours_data[$day] = [
+                        'is_open' => $is_open,
+                        'open' => $is_open ? ($_POST["day_{$day}_open"] ?? '08:00') : '',
+                        'close' => $is_open ? ($_POST["day_{$day}_close"] ?? '17:00') : ''
+                    ];
+                }
+                // Use harga_tiket_perday for per day mode
+                $harga_tiket = $_POST['harga_tiket_perday'] ?? 0;
             } else {
-                // Keep existing image
-                $oldDestination = $destinasiModel->getById($id);
-                $gambarPath = $oldDestination['gambar'];
+                $operating_hours_data['global'] = $_POST['jam_buka'] ?? '';
+                $harga_tiket = $_POST['harga_tiket'] ?? 0;
             }
             
             $data = [
                 'nama' => $_POST['nama'] ?? '',
                 'deskripsi' => $_POST['deskripsi'] ?? '',
                 'lokasi' => $_POST['lokasi'] ?? '',
+                'latitude' => !empty($_POST['latitude']) ? $_POST['latitude'] : null,
+                'longitude' => !empty($_POST['longitude']) ? $_POST['longitude'] : null,
                 'gambar' => $gambarPath,
                 'jam_buka' => $_POST['jam_buka'] ?? '',
-                'harga_tiket' => $_POST['harga_tiket'] ?? '',
+                'hari_operasional' => $_POST['hari_operasional'] ?? 'Setiap Hari',
+                'operating_hours_mode' => $operating_hours_mode,
+                'operating_hours_data' => json_encode($operating_hours_data),
+                'harga_tiket' => $harga_tiket,
                 'kategori_id' => $_POST['kategori_id'] ?? ''
             ];
             
@@ -265,10 +319,24 @@ class AdminController extends Controller {
         $data = [
             'title' => 'Edit Destinasi - ' . APP_NAME,
             'destination' => $destinasiModel->getById($id),
-            'categories' => $kategoriModel->getAll()
+            'categories' => $kategoriModel->getAll(),
+            'gallery' => $galleryModel->getByDestinasiId($id)
         ];
         
         $this->view('admin/destination_form', $data);
+    }
+
+    public function deleteGalleryImage($id) {
+        $this->checkAdmin();
+        
+        $galleryModel = $this->model('DestinasiGallery');
+        
+        if ($galleryModel->delete($id)) {
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Gagal menghapus gambar']);
+        }
+        exit;
     }
 
     public function deleteDestination($id) {
@@ -557,5 +625,48 @@ class AdminController extends Controller {
         ];
         
         $this->view('admin/change_photo', $data);
+    }
+
+    public function toggleFeatured($id) {
+        $this->checkAdmin();
+        
+        $destinasiModel = $this->model('Destinasi');
+        $destination = $destinasiModel->getById($id);
+        
+        if (!$destination) {
+            echo json_encode(['success' => false, 'message' => 'Destinasi tidak ditemukan']);
+            exit;
+        }
+        
+        // Check if currently featured
+        $isFeatured = $destination['is_featured'] == 1;
+        
+        if ($isFeatured) {
+            // Unpin
+            if ($destinasiModel->unsetFeatured($id)) {
+                echo json_encode(['success' => true, 'action' => 'unpinned', 'message' => 'Destinasi berhasil di-unpin']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Gagal unpin destinasi']);
+            }
+        } else {
+            // Check if already have 3 featured
+            $featuredCount = $destinasiModel->getFeaturedCount();
+            
+            if ($featuredCount >= 3) {
+                echo json_encode(['success' => false, 'message' => 'Maksimal 3 destinasi unggulan. Unpin salah satu terlebih dahulu.']);
+            } else {
+                // Pin with next order
+                $maxOrder = $destinasiModel->getMaxFeaturedOrder();
+                $newOrder = $maxOrder + 1;
+                
+                if ($destinasiModel->setFeatured($id, $newOrder)) {
+                    echo json_encode(['success' => true, 'action' => 'pinned', 'message' => 'Destinasi berhasil di-pin']);
+                } else {
+                    echo json_encode(['success' => false, 'message' => 'Gagal pin destinasi']);
+                }
+            }
+        }
+        
+        exit;
     }
 }

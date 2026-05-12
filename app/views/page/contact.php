@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 </head>
-<body class="bg-slate-50 text-slate-900 font-['Manrope']">
+<body class="bg-slate-50 text-slate-900 font-['Manrope'] min-h-screen flex flex-col">
 
 <!-- Navigation -->
 <nav class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-3xl shadow-sm">
@@ -59,7 +59,7 @@
         <!-- Contact Form -->
         <div class="bg-white rounded-3xl shadow-lg p-8">
             <h2 class="font-['Plus_Jakarta_Sans'] text-2xl font-bold mb-6">Kirim Pesan</h2>
-            <form action="https://formsubmit.co/chairilali13@gmail.com" method="POST" class="space-y-4">
+            <form action="https://formsubmit.co/trydede038@gmail.com" method="POST" class="space-y-4">
                 <!-- FormSubmit Configuration -->
                 <input type="hidden" name="_subject" value="Pesan Baru dari Ambon Oceanic Contact Form">
                 <input type="hidden" name="_captcha" value="false">
@@ -167,7 +167,7 @@
                 <h3 class="font-bold text-lg mb-4">Ikuti Kami</h3>
                 <div class="flex gap-3">
                     <!-- Instagram -->
-                    <a href="https://instagram.com/ambonoceanic" target="_blank" rel="noopener noreferrer" 
+                    <a href="https://instagram.com/grhft__" target="_blank" rel="noopener noreferrer" 
                        class="bg-white/20 hover:bg-white/30 rounded-full p-3 transition-colors inline-flex items-center justify-center" 
                        style="aspect-ratio: 1/1; width: 48px; height: 48px;"
                        title="Follow us on Instagram">
@@ -178,7 +178,7 @@
                         </svg>
                     </a>
                     <!-- Facebook -->
-                    <a href="https://facebook.com/ambonoceanic" target="_blank" rel="noopener noreferrer"
+                    <a href="https://www.facebook.com/dede.buplles" target="_blank" rel="noopener noreferrer"
                        class="bg-white/20 hover:bg-white/30 rounded-full p-3 transition-colors inline-flex items-center justify-center" 
                        style="aspect-ratio: 1/1; width: 48px; height: 48px;"
                        title="Follow us on Facebook">
@@ -193,7 +193,7 @@
 </main>
 
 <footer class="w-full bg-slate-100 border-t border-slate-200 mt-16">
-    <div class="flex flex-col md:flex-row justify-between items-center px-8 py-12 gap-6 max-w-screen-2xl mx-auto">
+    <div class="flex flex-col md:flex-row justify-between items-center px-8 py-6 gap-4 max-w-screen-2xl mx-auto">
         <div class="flex items-center gap-2">
             <span class="material-symbols-outlined text-sky-900" style="font-variation-settings: 'FILL' 1;">water</span>
             <span class="font-['Plus_Jakarta_Sans'] font-bold text-lg text-sky-900">Ambon Oceanic</span>

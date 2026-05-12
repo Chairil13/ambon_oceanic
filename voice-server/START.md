@@ -13,9 +13,7 @@ PHP_API_URL=http://localhost/ambon_oceanic
 
 ### 2. Jalankan Server
 
-```bash
 npm start
-```
 
 Anda akan melihat:
 ```

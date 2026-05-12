@@ -74,12 +74,13 @@ require_once __DIR__ . '/layouts/header.php';
                     <th class="px-6 py-5">Category</th>
                     <th class="px-6 py-5">Location</th>
                     <th class="px-6 py-5">Price</th>
+                    <th class="px-6 py-5 text-center">Featured</th>
                     <th class="px-8 py-5 text-right">Actions</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-50">
                 <?php foreach ($destinations as $dest): ?>
-                    <tr class="hover:bg-slate-50/40 transition-colors group destination-row" data-name="<?= strtolower($dest['nama']) ?>">
+                    <tr class="hover:bg-slate-50/40 transition-colors group destination-row" data-name="<?= strtolower($dest['nama']) ?>" data-id="<?= $dest['id'] ?>">
                         <td class="px-8 py-6">
                             <div class="flex items-center gap-4">
                                 <div class="w-12 h-12 rounded-xl overflow-hidden shadow-sm bg-slate-100">
@@ -110,6 +111,16 @@ require_once __DIR__ . '/layouts/header.php';
                         </td>
                         <td class="px-6 py-6">
                             <p class="text-sm font-bold text-slate-900">Rp <?= number_format($dest['harga_tiket'], 0, ',', '.') ?></p>
+                        </td>
+                        <td class="px-6 py-6 text-center">
+                            <button onclick="toggleFeatured(<?= $dest['id'] ?>)" 
+                                    class="pin-btn p-2 rounded-full transition-all hover:scale-110 <?= $dest['is_featured'] ? 'text-amber-500 bg-amber-50' : 'text-slate-300 hover:text-amber-400' ?>"
+                                    title="<?= $dest['is_featured'] ? 'Unpin dari unggulan' : 'Pin sebagai unggulan' ?>">
+                                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' <?= $dest['is_featured'] ? '1' : '0' ?>;">push_pin</span>
+                            </button>
+                            <?php if ($dest['is_featured']): ?>
+                                <span class="text-xs text-amber-600 font-bold block mt-1">#<?= $dest['featured_order'] ?></span>
+                            <?php endif; ?>
                         </td>
                         <td class="px-8 py-6 text-right">
                             <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -150,6 +161,31 @@ function searchDestinations() {
         } else {
             row.style.display = 'none';
         }
+    });
+}
+
+function toggleFeatured(id) {
+    const btn = event.target.closest('button');
+    const row = btn.closest('tr');
+    
+    fetch('<?= BASE_URL ?>admin/toggleFeatured/' + id, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            // Reload page to update UI
+            location.reload();
+        } else {
+            alert(data.message || 'Terjadi kesalahan');
+        }
+    })
+    .catch(err => {
+        console.error('Error:', err);
+        alert('Terjadi kesalahan saat memproses request');
     });
 }
 </script>

@@ -1,4 +1,4 @@
-    <footer class="bg-dark text-white mt-5 py-4">
+    <footer class="bg-dark text-white mt-5 py-3">
         <div class="container text-center">
             <p class="mb-0">&copy; <?= date('Y') ?> <?= APP_NAME ?>. All rights reserved.</p>
             <p class="mb-0">Sistem Informasi Destinasi Wisata Kota Ambon</p>

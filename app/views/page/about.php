@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 </head>
-<body class="bg-slate-50 text-slate-900 font-['Manrope']">
+<body class="bg-slate-50 text-slate-900 font-['Manrope'] min-h-screen flex flex-col">
 
 <!-- Navigation -->
 <nav class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-3xl shadow-sm">
@@ -125,7 +125,7 @@
 </main>
 
 <footer class="w-full bg-slate-100 border-t border-slate-200 mt-16">
-    <div class="flex flex-col md:flex-row justify-between items-center px-8 py-12 gap-6 max-w-screen-2xl mx-auto">
+    <div class="flex flex-col md:flex-row justify-between items-center px-8 py-6 gap-4 max-w-screen-2xl mx-auto">
         <div class="flex items-center gap-2">
             <span class="material-symbols-outlined text-sky-900" style="font-variation-settings: 'FILL' 1;">water</span>
             <span class="font-['Plus_Jakarta_Sans'] font-bold text-lg text-sky-900">Ambon Oceanic</span>

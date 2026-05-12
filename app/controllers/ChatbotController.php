@@ -66,13 +66,35 @@ class ChatbotController extends Controller {
         foreach ($allDestinasi as $dest) {
             // Check if destination name is mentioned in response
             if (stripos($response, $dest['nama']) !== false) {
+                // Format operating hours
+                $operatingHours = '';
+                if (!empty($dest['operating_hours_mode']) && $dest['operating_hours_mode'] === 'per_day') {
+                    $operatingData = !empty($dest['operating_hours_data']) ? json_decode($dest['operating_hours_data'], true) : [];
+                    if (!empty($operatingData)) {
+                        $days = ['senin' => 'Senin', 'selasa' => 'Selasa', 'rabu' => 'Rabu', 'kamis' => 'Kamis', 'jumat' => 'Jumat', 'sabtu' => 'Sabtu', 'minggu' => 'Minggu'];
+                        $scheduleLines = [];
+                        foreach ($days as $key => $label) {
+                            if (isset($operatingData[$key])) {
+                                $dayInfo = $operatingData[$key];
+                                $scheduleLines[] = $dayInfo['is_open'] ? "$label: {$dayInfo['open']} - {$dayInfo['close']}" : "$label: TUTUP";
+                            }
+                        }
+                        $operatingHours = implode("\n", $scheduleLines);
+                    }
+                } else {
+                    $operatingHours = $dest['jam_buka'];
+                    if (!empty($dest['hari_operasional'])) {
+                        $operatingHours = $dest['hari_operasional'] . ' (' . $dest['jam_buka'] . ')';
+                    }
+                }
+                
                 $mentionedDestinations[] = [
                     'id' => $dest['id'],
                     'nama' => $dest['nama'],
                     'gambar' => $dest['gambar'],
                     'kategori' => $dest['kategori_nama'],
                     'lokasi' => $dest['lokasi'],
-                    'jam_buka' => $dest['jam_buka'],
+                    'jam_operasional' => $operatingHours,
                     'harga_tiket' => $dest['harga_tiket']
                 ];
             }
@@ -80,7 +102,8 @@ class ChatbotController extends Controller {
         
         // Save log only for logged-in users
         if ($this->isLoggedIn()) {
-            $chatModel->saveLog($user_id, $message, $response);
+            $destinationsJson = !empty($mentionedDestinations) ? json_encode($mentionedDestinations) : null;
+            $chatModel->saveLog($user_id, $message, $response, $destinationsJson);
         }
         // Guest users: don't save anywhere (client handles in-memory storage)
         
@@ -160,13 +183,57 @@ class ChatbotController extends Controller {
             // Format data untuk AI
             $formattedDestinations = [];
             foreach ($destinations as $dest) {
+                $operatingHours = '';
+                
+                // Check operating hours mode
+                if (!empty($dest['operating_hours_mode']) && $dest['operating_hours_mode'] === 'per_day') {
+                    // Per day mode - format with line breaks
+                    $operatingData = !empty($dest['operating_hours_data']) ? json_decode($dest['operating_hours_data'], true) : [];
+                    
+                    if (!empty($operatingData)) {
+                        $days = [
+                            'senin' => 'Senin',
+                            'selasa' => 'Selasa',
+                            'rabu' => 'Rabu',
+                            'kamis' => 'Kamis',
+                            'jumat' => 'Jumat',
+                            'sabtu' => 'Sabtu',
+                            'minggu' => 'Minggu'
+                        ];
+                        
+                        $scheduleLines = [];
+                        foreach ($days as $key => $label) {
+                            if (isset($operatingData[$key])) {
+                                $dayInfo = $operatingData[$key];
+                                if ($dayInfo['is_open']) {
+                                    $scheduleLines[] = "$label: {$dayInfo['open']} - {$dayInfo['close']}";
+                                } else {
+                                    $scheduleLines[] = "$label: TUTUP";
+                                }
+                            }
+                        }
+                        
+                        $operatingHours = implode("\n", $scheduleLines);
+                    }
+                } else {
+                    // Global mode
+                    $operatingHours = $dest['jam_buka'];
+                    if (!empty($dest['hari_operasional'])) {
+                        $operatingHours = $dest['hari_operasional'] . ' (' . $dest['jam_buka'] . ')';
+                    }
+                }
+                
                 $formattedDestinations[] = [
+                    'id' => $dest['id'],
                     'nama' => $dest['nama'],
                     'kategori' => $dest['kategori_nama'],
                     'lokasi' => $dest['lokasi'],
                     'deskripsi' => $dest['deskripsi'],
+                    'jam_operasional' => $operatingHours,
                     'jam_buka' => $dest['jam_buka'],
-                    'harga_tiket' => 'Rp ' . number_format($dest['harga_tiket'], 0, ',', '.')
+                    'harga_tiket' => 'Rp ' . number_format($dest['harga_tiket'], 0, ',', '.'),
+                    'harga_tiket_raw' => $dest['harga_tiket'],
+                    'gambar' => $dest['gambar']
                 ];
             }
             

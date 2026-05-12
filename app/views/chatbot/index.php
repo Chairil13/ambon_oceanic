@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 </head>
-<body class="bg-slate-50 text-slate-900 font-['Manrope']">
+<body class="bg-slate-50 text-slate-900 font-['Manrope'] min-h-screen flex flex-col">
 
 <!-- Navigation -->
 <nav class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-3xl shadow-sm">
@@ -81,7 +81,52 @@
                         <!-- Bot Response -->
                         <div class="flex justify-start">
                             <div class="bg-white border border-slate-200 rounded-2xl rounded-tl-sm px-6 py-3 max-w-[70%]">
-                                <?= nl2br(htmlspecialchars($chat['response'])) ?>
+                                <div><?= nl2br(htmlspecialchars($chat['response'])) ?></div>
+                                <?php if (!empty($chat['destinations'])): ?>
+                                    <?php 
+                                    $destinations = json_decode($chat['destinations'], true);
+                                    if (!empty($destinations)):
+                                    ?>
+                                    <div class="grid grid-cols-1 gap-3 mt-4">
+                                        <?php foreach ($destinations as $dest): ?>
+                                            <a href="<?= BASE_URL ?>destinasi/detail/<?= $dest['id'] ?>" 
+                                               class="block bg-slate-50 rounded-xl overflow-hidden border border-slate-200 hover:shadow-md hover:border-sky-300 transition-all cursor-pointer">
+                                                <div class="flex gap-3">
+                                                    <?php 
+                                                    $imageSrc = $dest['gambar'];
+                                                    if (!filter_var($imageSrc, FILTER_VALIDATE_URL)) {
+                                                        $imageSrc = BASE_URL . $imageSrc;
+                                                    }
+                                                    ?>
+                                                    <img src="<?= htmlspecialchars($imageSrc) ?>" 
+                                                         alt="<?= htmlspecialchars($dest['nama']) ?>" 
+                                                         class="w-24 h-24 object-cover flex-shrink-0"
+                                                         onerror="this.src='<?= BASE_URL ?>public/assets/images/logo.png'">
+                                                    <div class="flex-1 py-2 pr-3 min-w-0">
+                                                        <h4 class="font-bold text-slate-900 text-sm mb-1"><?= htmlspecialchars($dest['nama']) ?></h4>
+                                                        <p class="text-xs text-slate-600 flex items-center gap-1 mb-0.5">
+                                                            <span class="material-symbols-outlined text-xs">category</span>
+                                                            <span><?= htmlspecialchars($dest['kategori']) ?></span>
+                                                        </p>
+                                                        <p class="text-xs text-slate-600 flex items-center gap-1 mb-0.5">
+                                                            <span class="material-symbols-outlined text-xs">location_on</span>
+                                                            <span class="truncate"><?= htmlspecialchars($dest['lokasi']) ?></span>
+                                                        </p>
+                                                        <div class="text-xs text-slate-600 flex items-start gap-1 mb-0.5">
+                                                            <span class="material-symbols-outlined text-xs mt-0.5">schedule</span>
+                                                            <span class="whitespace-pre-line"><?= htmlspecialchars($dest['jam_operasional'] ?? $dest['jam_buka'] ?? 'Tidak tersedia') ?></span>
+                                                        </div>
+                                                        <p class="text-xs text-slate-600 flex items-center gap-1">
+                                                            <span class="material-symbols-outlined text-xs">payments</span>
+                                                            <span>Rp <?= number_format($dest['harga_tiket'], 0, ',', '.') ?></span>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        <?php endforeach; ?>
+                                    </div>
+                                    <?php endif; ?>
+                                <?php endif; ?>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -135,7 +180,7 @@
 </main>
 
 <footer class="w-full bg-slate-100 border-t border-slate-200 mt-16">
-    <div class="flex flex-col md:flex-row justify-between items-center px-8 py-12 gap-6 max-w-screen-2xl mx-auto">
+    <div class="flex flex-col md:flex-row justify-between items-center px-8 py-6 gap-4 max-w-screen-2xl mx-auto">
         <div class="flex items-center gap-2">
             <span class="material-symbols-outlined text-sky-900" style="font-variation-settings: 'FILL' 1;">water</span>
             <span class="font-['Plus_Jakarta_Sans'] font-bold text-lg text-sky-900">Ambon Oceanic</span>
@@ -346,14 +391,15 @@ function addMessage(text, sender, destinations = []) {
                     : '<?= BASE_URL ?>' + dest.gambar;
                 
                 destinationCards += `
-                    <div class="bg-slate-50 rounded-xl overflow-hidden border border-slate-200 hover:shadow-md transition-shadow">
+                    <a href="<?= BASE_URL ?>destinasi/detail/${dest.id}" 
+                       class="block bg-slate-50 rounded-xl overflow-hidden border border-slate-200 hover:shadow-md hover:border-sky-300 transition-all cursor-pointer">
                         <div class="flex gap-3">
                             <img src="${imageUrl}" 
                                  alt="${escapeHtml(dest.nama)}" 
                                  class="w-24 h-24 object-cover flex-shrink-0"
                                  onerror="this.src='<?= BASE_URL ?>public/assets/images/logo.png'">
                             <div class="flex-1 py-2 pr-3 min-w-0">
-                                <h4 class="font-bold text-slate-900 text-sm mb-1">${escapeHtml(dest.nama)}</h4>
+                                <h4 class="font-bold text-slate-900 text-sm mb-1 group-hover:text-sky-600 transition-colors">${escapeHtml(dest.nama)}</h4>
                                 <p class="text-xs text-slate-600 flex items-center gap-1 mb-0.5">
                                     <span class="material-symbols-outlined text-xs">category</span>
                                     <span>${escapeHtml(dest.kategori)}</span>
@@ -362,17 +408,17 @@ function addMessage(text, sender, destinations = []) {
                                     <span class="material-symbols-outlined text-xs">location_on</span>
                                     <span class="truncate">${escapeHtml(dest.lokasi)}</span>
                                 </p>
-                                <p class="text-xs text-slate-600 flex items-center gap-1 mb-0.5">
-                                    <span class="material-symbols-outlined text-xs">schedule</span>
-                                    <span>${escapeHtml(dest.jam_buka)}</span>
-                                </p>
+                                <div class="text-xs text-slate-600 flex items-start gap-1 mb-0.5">
+                                    <span class="material-symbols-outlined text-xs mt-0.5">schedule</span>
+                                    <span class="whitespace-pre-line">${escapeHtml(dest.jam_operasional || dest.jam_buka || 'Tidak tersedia')}</span>
+                                </div>
                                 <p class="text-xs text-slate-600 flex items-center gap-1">
                                     <span class="material-symbols-outlined text-xs">payments</span>
                                     <span>Rp ${Number(dest.harga_tiket).toLocaleString('id-ID')}</span>
                                 </p>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 `;
             });
             destinationCards += '</div>';

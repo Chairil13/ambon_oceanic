@@ -130,7 +130,7 @@
 
     <!-- Categories Section -->
     <section class="w-full max-w-screen-2xl mx-auto px-6 py-16">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
             <?php 
             $categoryIcons = [
                 'Pantai' => 'beach_access',
@@ -232,16 +232,10 @@
 
 <!-- Footer -->
 <footer class="w-full mt-auto bg-slate-100 border-t border-slate-200">
-    <div class="flex flex-col md:flex-row justify-between items-center px-8 py-12 gap-6 w-full max-w-screen-2xl mx-auto">
+    <div class="flex flex-col md:flex-row justify-between items-center px-8 py-6 gap-4 w-full max-w-screen-2xl mx-auto">
         <div class="flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity">
             <span class="material-symbols-outlined text-sky-900" style="font-variation-settings: 'FILL' 1;">water</span>
             <span class="font-['Plus_Jakarta_Sans'] font-bold text-lg text-sky-900">Ambon Oceanic</span>
-        </div>
-        <div class="flex flex-wrap justify-center gap-6 text-sm">
-            <a class="text-slate-500 hover:text-sky-600 transition-colors" href="#">Privacy Policy</a>
-            <a class="text-slate-500 hover:text-sky-600 transition-colors" href="#">Terms of Service</a>
-            <a class="text-slate-500 hover:text-sky-600 transition-colors" href="#">Contact Us</a>
-            <a class="text-slate-500 hover:text-sky-600 transition-colors" href="#">About Maluku</a>
         </div>
         <div class="text-sm text-slate-500 text-center md:text-right">
             © <?= date('Y') ?> <?= APP_NAME ?>. All rights reserved.

@@ -147,7 +147,7 @@
 </main>
 
 <!-- Footer -->
-<footer class="w-full mt-auto py-8 bg-slate-100">
+<footer class="w-full mt-auto py-4 bg-slate-100">
     <div class="flex flex-col md:flex-row justify-between items-center px-8 max-w-7xl mx-auto space-y-4 md:space-y-0">
         <div class="text-lg font-bold text-slate-800 font-['Plus_Jakarta_Sans']">Ambon Oceanic</div>
         <div class="text-slate-500 font-['Manrope'] text-sm text-center">

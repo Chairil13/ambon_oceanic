@@ -32,6 +32,7 @@ class VoiceChat {
         this.conversationBox = document.getElementById('conversationBox');
         this.controlHint = document.getElementById('controlHint');
         this.audioVisualizer = document.getElementById('audioVisualizer');
+        this.voiceSelect = document.getElementById('voiceSelect');
         
         // Initialize visualizer bars
         this.initVisualizer();
@@ -100,8 +101,15 @@ class VoiceChat {
     }
     
     async connect() {
+        const selectedVoice = this.voiceSelect ? this.voiceSelect.value : 'Puck';
+        const wsUrl = `${this.serverUrl}?voice=${selectedVoice}`;
+        
         console.log('=== Connecting to Voice Server ===');
-        console.log('Server URL:', this.serverUrl);
+        console.log('Server URL:', wsUrl);
+        console.log('Selected Voice:', selectedVoice);
+        
+        // Disable voice selection during call
+        if (this.voiceSelect) this.voiceSelect.disabled = true;
         
         try {
             this.updateStatus('connecting', 'Connecting...', 'Menghubungkan ke server...');
@@ -130,7 +138,7 @@ class VoiceChat {
             
             // Connect to WebSocket server
             console.log('Connecting to WebSocket server...');
-            this.websocket = new WebSocket(this.serverUrl);
+            this.websocket = new WebSocket(wsUrl);
             
             this.websocket.onopen = () => this.onWebSocketOpen();
             this.websocket.onmessage = (event) => this.onWebSocketMessage(event);
@@ -149,6 +157,7 @@ class VoiceChat {
             }
             
             this.connectBtn.disabled = false;
+            if (this.voiceSelect) this.voiceSelect.disabled = false;
             this.updateStatus('disconnected', 'Disconnected', 'Gagal terhubung');
         }
     }
@@ -167,11 +176,17 @@ class VoiceChat {
             const message = JSON.parse(event.data);
             console.log('📨 Message from server:', message.type || 'raw');
             
+            // Log destinations if present
+            if (message.destinations) {
+                console.log('🏖️ Destinations received:', message.destinations.length, message.destinations);
+            }
+            
             // Handle different message types
             if (message.type === 'ready') {
                 this.handleReady(message);
             } else if (message.type === 'serverContent') {
-                this.handleServerContent(message.content);
+                console.log('📦 Server content with destinations:', message.destinations?.length || 0);
+                this.handleServerContent(message.content, message.destinations || []);
             } else if (message.type === 'error') {
                 this.handleError(message);
             } else if (message.type === 'geminiDisconnected') {
@@ -181,7 +196,7 @@ class VoiceChat {
                 console.log('✅ Setup complete');
             } else if (message.serverContent) {
                 // Direct Gemini serverContent
-                this.handleServerContent(message.serverContent);
+                this.handleServerContent(message.serverContent, []);
             }
             
         } catch (error) {
@@ -189,8 +204,9 @@ class VoiceChat {
         }
     }
     
-    handleServerContent(content) {
+    handleServerContent(content, destinations = []) {
         console.log('📦 Server content received');
+        console.log('🏖️ Destinations to display:', destinations.length, destinations);
         
         // Handle interruption
         if (content.interrupted) {
@@ -216,7 +232,8 @@ class VoiceChat {
         // Handle output transcription (what AI said)
         if (content.outputTranscription && content.outputTranscription.text) {
             console.log('🤖 AI said:', content.outputTranscription.text);
-            this.addMessage('bot', content.outputTranscription.text);
+            console.log('🤖 Adding message with destinations:', destinations.length);
+            this.addMessage('bot', content.outputTranscription.text, destinations);
         }
         
         // Handle audio response
@@ -419,6 +436,7 @@ class VoiceChat {
         this.updateStatus('disconnected', 'Disconnected', 'Koneksi terputus');
         this.connectBtn.disabled = false;
         this.disconnectBtn.disabled = true;
+        if (this.voiceSelect) this.voiceSelect.disabled = false;
     }
     
     disconnect() {
@@ -460,6 +478,7 @@ class VoiceChat {
         this.updateStatus('disconnected', 'Disconnected', 'Terputus');
         this.connectBtn.disabled = false;
         this.disconnectBtn.disabled = true;
+        if (this.voiceSelect) this.voiceSelect.disabled = false;
         this.animateVisualizer(false);
     }
     
@@ -480,7 +499,9 @@ class VoiceChat {
         }
     }
     
-    addMessage(type, text) {
+    addMessage(type, text, destinations = []) {
+        console.log('➕ Adding message:', type, 'with', destinations.length, 'destinations');
+        
         const emptyState = this.conversationBox.querySelector('.flex.flex-col.items-center');
         if (emptyState) {
             this.conversationBox.innerHTML = '';
@@ -496,10 +517,77 @@ class VoiceChat {
                 </div>
             `;
         } else if (type === 'bot') {
+            // Build destination cards HTML
+            let destinationCards = '';
+            if (destinations && destinations.length > 0) {
+                console.log('🏖️ Building cards for', destinations.length, 'destinations');
+                destinationCards = '<div class="mt-4 space-y-3">';
+                
+                destinations.forEach(dest => {
+                    console.log('📍 Building card for:', dest.nama);
+                    
+                    // Get base URL - remove /chatbot/voice from path
+                    const pathParts = window.location.pathname.split('/');
+                    const baseIndex = pathParts.indexOf('chatbot');
+                    const basePath = baseIndex > 0 ? pathParts.slice(0, baseIndex).join('/') : '';
+                    const baseUrl = window.location.origin + basePath + '/';
+                    
+                    console.log('🔗 Base URL:', baseUrl);
+                    
+                    // Build image URL
+                    let imageUrl = dest.gambar || 'public/assets/images/logo.png';
+                    if (!imageUrl.startsWith('http')) {
+                        imageUrl = baseUrl + imageUrl;
+                    }
+                    
+                    console.log('🖼️ Image URL:', imageUrl);
+                    
+                    // Build detail URL
+                    const detailUrl = baseUrl + 'destinasi/detail/' + dest.id;
+                    
+                    console.log('🔗 Detail URL:', detailUrl);
+                    
+                    destinationCards += `
+                        <a href="${detailUrl}" 
+                           class="block bg-gradient-to-br from-white to-purple-50 rounded-xl overflow-hidden border-2 border-purple-100 hover:border-purple-300 hover:shadow-xl transition-all cursor-pointer transform hover:scale-[1.02]">
+                            <div class="flex gap-4">
+                                <img src="${imageUrl}" 
+                                     alt="${this.escapeHtml(dest.nama)}" 
+                                     class="w-28 h-28 object-cover flex-shrink-0"
+                                     onerror="this.src='${baseUrl}public/assets/images/logo.png'">
+                                <div class="flex-1 py-3 pr-4 min-w-0">
+                                    <h4 class="font-bold text-slate-900 text-base mb-2">${this.escapeHtml(dest.nama)}</h4>
+                                    <p class="text-xs text-slate-600 flex items-center gap-1.5 mb-1">
+                                        <span class="material-symbols-outlined text-sm">category</span>
+                                        <span>${this.escapeHtml(dest.kategori)}</span>
+                                    </p>
+                                    <p class="text-xs text-slate-600 flex items-center gap-1.5 mb-1">
+                                        <span class="material-symbols-outlined text-sm">location_on</span>
+                                        <span class="truncate">${this.escapeHtml(dest.lokasi)}</span>
+                                    </p>
+                                    <div class="text-xs text-slate-600 flex items-start gap-1.5 mb-1">
+                                        <span class="material-symbols-outlined text-sm mt-0.5">schedule</span>
+                                        <span class="whitespace-pre-line">${this.escapeHtml(dest.jam_operasional || dest.jam_buka || 'Tidak tersedia')}</span>
+                                    </div>
+                                    <p class="text-xs text-purple-700 font-semibold flex items-center gap-1.5">
+                                        <span class="material-symbols-outlined text-sm">payments</span>
+                                        <span>Rp ${this.formatNumber(dest.harga_tiket_raw || 0)}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                });
+                
+                destinationCards += '</div>';
+                console.log('✅ Destination cards HTML built');
+            }
+            
             messageDiv.className = 'flex justify-start message-bot';
             messageDiv.innerHTML = `
                 <div class="bg-white border-2 border-purple-100 rounded-2xl rounded-tl-sm px-6 py-4 max-w-[70%] shadow-lg">
                     <p class="text-sm text-slate-700">${this.escapeHtml(text)}</p>
+                    ${destinationCards}
                 </div>
             `;
         } else if (type === 'system') {
@@ -513,6 +601,8 @@ class VoiceChat {
         
         this.conversationBox.appendChild(messageDiv);
         this.conversationBox.scrollTop = this.conversationBox.scrollHeight;
+        
+        console.log('✅ Message added to conversation box');
     }
     
     showError(message) {
@@ -523,6 +613,10 @@ class VoiceChat {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+    
+    formatNumber(num) {
+        return Number(num).toLocaleString('id-ID');
     }
 }
 
